@@ -4,14 +4,14 @@ export default class UpdateShelterControllerInput {
 
     @IsString()
     @IsNotEmpty()
-    shelterName: string;
+    name: string;
 
     @IsPhoneNumber() 
-    shelterWhatsApp: string;
+    whatsApp: string;
 
     @IsEmail()
-    shelterEmail: string;
+    email: string;
 
     @IsPhoneNumber("BR")
-    shelterPhone: string;
+    phone: string;
 }

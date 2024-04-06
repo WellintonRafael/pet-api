@@ -1,21 +1,21 @@
 import { SchemaFactory, Schema, Prop } from "@nestjs/mongoose"
-import { Date, HydratedDocument } from "mongoose"
+import { HydratedDocument } from "mongoose"
 
 export type ShelterDocument = HydratedDocument<Shelter>;
 
 @Schema({ versionKey: false })
 export class Shelter {
-    @Prop({ required: true })
+    @Prop({ required: true})
     name: string;
-    @Prop({ required: true })
+    @Prop({ required: true})
     whatsApp: string;
-    @Prop({ required: true })
+    @Prop({ required: true})
     phone: string;
-    @Prop({ required: true })
+    @Prop({ required: true})
     email: string;
-    @Prop({ required: true })
+    @Prop({ required: true})
     createdAt: Date;
-    @Prop({ required: true })
+    @Prop({ required: true})
     updateAt: Date;
 };
 
