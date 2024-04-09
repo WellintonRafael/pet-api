@@ -3,15 +3,18 @@ import { Inject } from "@nestjs/common";
 import ShelterTokens from "../shelter.tokens";
 import IShelterRepository from "../interfaces/shelter.repository.interface";
 import UpdateShelterDetailsUseCaseOutput from "./dtos/outputs/update.shelter.details.usecase.output";
+import UpdateShelterDetailsUseCaseInput from "./dtos/inputs/update.shelter.details.usecase.input";
 
-export default class UpdateShelterDetailsUseCase implements IUseCase<null, UpdateShelterDetailsUseCaseOutput> {
+export default class UpdateShelterDetailsUseCase implements IUseCase<UpdateShelterDetailsUseCaseInput, UpdateShelterDetailsUseCaseOutput> {
 
     constructor(
         @Inject(ShelterTokens.shelterRepository)
         private readonly shelterRepository: IShelterRepository
     ) {}
 
-    async run(input: null): Promise<UpdateShelterDetailsUseCaseOutput> {
+    async run(input: UpdateShelterDetailsUseCaseInput): Promise<UpdateShelterDetailsUseCaseOutput> {
+        await this.shelterRepository.update(input);
+
         const shelter = await this.shelterRepository.get();
 
         return new UpdateShelterDetailsUseCaseOutput({
