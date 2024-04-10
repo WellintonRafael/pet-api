@@ -1,5 +1,6 @@
-import { SchemaFactory, Schema, Prop } from "@nestjs/mongoose"
-import mongoose, { HydratedDocument } from "mongoose"
+import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
+import mongoose, { HydratedDocument } from "mongoose";
+
 
 export type PetDocument = HydratedDocument<Pet>;
 
@@ -29,10 +30,10 @@ export class Pet {
     type: string;
 
     @Prop({required: true})
-    updatedAt: string;
+    updatedAt: Date;
 
     @Prop({required: true})
-    createdAt: string;
+    createdAt: Date;
 };
 
-export const ShelterSchema = SchemaFactory.createForClass(Pet);
+export const PetSchema = SchemaFactory.createForClass(Pet);
