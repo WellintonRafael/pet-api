@@ -3,8 +3,6 @@ import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
 import { Pet } from "./schemas/pet.schema";
 import IPetRepository from "./interfaces/pet.repository.interface";
-import GetPetByIdUseCaseInput from "./usecases/dtos/inputs/get.pet.by.id.usecase.input";
-import GetPetByIdUseCaseOutput from "./usecases/dtos/outputs/get.pet.by.id.usecase.output";
 
 @Injectable()
 export default class PetRepository implements IPetRepository {
@@ -13,6 +11,22 @@ export default class PetRepository implements IPetRepository {
         @InjectModel(Pet.name)
         private readonly petModel: Model<Pet>
     ) { }
+
+    async deleteById(id: string): Promise<void> {
+        await this.petModel.findByIdAndDelete(id);
+    }
+
+    async updateById(data: Partial<Pet>): Promise<void> {
+        await this.petModel.updateOne(
+            {
+                _id: data._id
+            },
+            {
+                ...data,
+                updatedAt: new Date()
+            }
+        )
+    }
 
     async getById(id: string): Promise<Pet> {
         return await this.petModel.findById(id)
@@ -25,5 +39,4 @@ export default class PetRepository implements IPetRepository {
             updatedAt: new Date()
         });
     }
-
 }
