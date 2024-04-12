@@ -1,17 +1,21 @@
-import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, Post, Put } from '@nestjs/common';
-import CreatePetControllerInput from './dtos/create.pet.controller.input';
+import { BadRequestException, Body, Controller, Delete, Get, Inject, Param, Patch, Post, Put, Query, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
+import multerConfig from 'src/config/multer.config';
 import { IUseCase } from 'src/domain/iusecase.interface';
-import CreatePetUseCaseInput from './usecases/dtos/inputs/create.pet.usecase.input';
-import CreatePetUseCaseOutput from './usecases/dtos/outputs/create.pet.usecase.output';
-import PetTokens from './pet.tokens';
-import GetPetByIdUseCaseInput from './usecases/dtos/inputs/get.pet.by.id.usecase.input';
-import GetPetByIdUseCaseOutput from './usecases/dtos/outputs/get.pet.by.id.usecase.output';
+import CreatePetControllerInput from './dtos/create.pet.controller.input';
 import UpdatePetControllerInput from './dtos/update.pet.controller.input';
-import UpdatePetByIdUseCaseOutput from './usecases/dtos/outputs/update.pet.by.id.usecase.output';
-import UpdatePetByIdUseCaseInput from './usecases/dtos/inputs/update.pet.by.id.usecase.input';
-import UpdatePetByIdUseCase from './usecases/update.pet.by.id.usecase';
+import PetTokens from './pet.tokens';
+import CreatePetUseCaseInput from './usecases/dtos/inputs/create.pet.usecase.input';
 import DeletePetByIdUseCaseInput from './usecases/dtos/inputs/delete.pet.by.id.usecase.input';
+import GetPetByIdUseCaseInput from './usecases/dtos/inputs/get.pet.by.id.usecase.input';
+import UpdatePetByIdUseCaseInput from './usecases/dtos/inputs/update.pet.by.id.usecase.input';
+import UpdatePetPhotoByIdUseCaseInput from './usecases/dtos/inputs/update.pet.photo.by.id.usecase.input';
+import CreatePetUseCaseOutput from './usecases/dtos/outputs/create.pet.usecase.output';
 import DeletePetByIdUseCaseOutput from './usecases/dtos/outputs/delete.pet.by.id.usecase.output';
+import GetPetByIdUseCaseOutput from './usecases/dtos/outputs/get.pet.by.id.usecase.output';
+import UpdatePetByIdUseCaseOutput from './usecases/dtos/outputs/update.pet.by.id.usecase.output';
+import UpdatePetPhotoByIdUseCaseOutput from './usecases/dtos/outputs/update.pet.photo.by.id.usecase.output';
+import GetPetsUseCaseInput from './usecases/dtos/inputs/get.pets.usecase.input';
 
 @Controller('pet')
 export class PetController {
@@ -28,11 +32,33 @@ export class PetController {
     @Inject(PetTokens.deletePetByIdUseCase)
     private readonly deletePetByIdUseCase: IUseCase<DeletePetByIdUseCaseInput, DeletePetByIdUseCaseOutput>
 
+    @Inject(PetTokens.updatePetPhotoByIdUseCase)
+    private readonly updatePetPhotoByIdUseCase: IUseCase<UpdatePetPhotoByIdUseCaseInput, UpdatePetPhotoByIdUseCaseOutput>
+
     @Post()
     async createPet(@Body() input: CreatePetControllerInput): Promise<CreatePetUseCaseOutput> {
         const useCaseInput = new CreatePetUseCaseInput({ ...input });
 
         return await this.createPetUseCase.run(useCaseInput);
+    }
+
+    @Get()
+    async getPets(
+        @Query('type') type?: string,
+        @Query('size') size?: string,
+        @Query('gender') gender?: string,
+        @Query('page') page?: string,
+        @Query('itemsPerPage') itemsPerPage?: string,
+    ) {
+        const FIRST_PAGE: number = 1;
+        const DEFAULT_ITEMS_PER_PAGE: number = 10;
+        const useCaseInput = new GetPetsUseCaseInput ({
+            type: !!type ? type : null,
+            size: !!size ? size : null,
+            gender: !!gender ? gender : null,
+            page: !!page ? parseInt(page) : FIRST_PAGE,
+            itemsPerPage: !!itemsPerPage ? parseInt(itemsPerPage) : DEFAULT_ITEMS_PER_PAGE,
+        })
     }
 
     @Get(':id')
@@ -65,6 +91,23 @@ export class PetController {
             const useCaseInput = new DeletePetByIdUseCaseInput({ id });
             return await this.deletePetByIdUseCase.run(useCaseInput);
         } catch (error) {
+            throw new BadRequestException(JSON.parse(error.message));
+        }
+    }
+
+    @Patch(':id/photo')
+    @UseInterceptors(FileInterceptor('photo', multerConfig))
+    async updatePhoto(@UploadedFile() photo: Express.Multer.File, @Param('id') id: string): Promise<UpdatePetByIdUseCaseOutput> {
+
+        try {
+            const useCaseInput = new UpdatePetPhotoByIdUseCaseInput({
+                id,
+                photoPatch: photo.path
+            })
+
+            return await this.updatePetPhotoByIdUseCase.run(useCaseInput)
+        }
+        catch (error) {
             throw new BadRequestException(JSON.parse(error.message));
         }
     }
