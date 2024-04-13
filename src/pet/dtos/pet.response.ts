@@ -13,11 +13,19 @@ export default class PetResponse {
 
   static fromPet(data: Pet): PetResponse {
     return new PetResponse({
-      ...data,
       id: data._id,
+      name: data.name,
+      type: data.type,
+      size: data.size,
+      gender: data.gender,
+      bio: data.bio,
+      photo: data.photo,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
     });
   }
+  
   constructor(data: Partial<PetResponse>) {
-    Object.assign(this);
+    Object.assign(this, data);
   }
 }

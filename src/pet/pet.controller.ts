@@ -16,12 +16,17 @@ import GetPetByIdUseCaseOutput from './usecases/dtos/outputs/get.pet.by.id.useca
 import UpdatePetByIdUseCaseOutput from './usecases/dtos/outputs/update.pet.by.id.usecase.output';
 import UpdatePetPhotoByIdUseCaseOutput from './usecases/dtos/outputs/update.pet.photo.by.id.usecase.output';
 import GetPetsUseCaseInput from './usecases/dtos/inputs/get.pets.usecase.input';
+import GetPetsUseCaseOutput from './usecases/dtos/outputs/get.pets.usecase.output';
+import { Promise } from 'mongoose';
 
 @Controller('pet')
 export class PetController {
 
     @Inject(PetTokens.createPetUseCase)
     private readonly createPetUseCase: IUseCase<CreatePetUseCaseInput, CreatePetUseCaseOutput>
+
+    @Inject(PetTokens.getPetsUseCase)
+    private readonly getPetsUseCase: IUseCase<GetPetsUseCaseInput, GetPetsUseCaseOutput>
 
     @Inject(PetTokens.getPetByIdUseCase)
     private readonly getPetByIdUseCase: IUseCase<GetPetByIdUseCaseInput, GetPetByIdUseCaseOutput>
@@ -49,7 +54,7 @@ export class PetController {
         @Query('gender') gender?: string,
         @Query('page') page?: string,
         @Query('itemsPerPage') itemsPerPage?: string,
-    ) {
+    ): Promise<GetPetsUseCaseOutput> {
         const FIRST_PAGE: number = 1;
         const DEFAULT_ITEMS_PER_PAGE: number = 10;
         const useCaseInput = new GetPetsUseCaseInput ({
@@ -58,7 +63,9 @@ export class PetController {
             gender: !!gender ? gender : null,
             page: !!page ? parseInt(page) : FIRST_PAGE,
             itemsPerPage: !!itemsPerPage ? parseInt(itemsPerPage) : DEFAULT_ITEMS_PER_PAGE,
-        })
+        });
+
+        return await this.getPetsUseCase.run(useCaseInput)
     }
 
     @Get(':id')
