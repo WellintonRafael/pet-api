@@ -8,6 +8,7 @@ export default class CreatePetControllerInput {
 
     @IsNotEmpty()
     @IsString()
+    @Length(128)
     type: string;
 
     @IsNotEmpty()
