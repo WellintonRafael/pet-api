@@ -1,8 +1,9 @@
-import { IsNotEmpty, IsString, MaxLength } from "class-validator";
+import { IsNotEmpty, IsString, Length, MaxLength } from "class-validator";
 
 export default class CreatePetControllerInput {
     @IsNotEmpty()
     @IsString()
+    @Length(256)
     name: string;
 
     @IsNotEmpty()
