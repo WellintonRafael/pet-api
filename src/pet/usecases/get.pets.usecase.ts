@@ -34,8 +34,6 @@ export default class GetPetsUseCase implements IUseCase<GetPetsUseCaseInput, Get
             petRepositoryList.push(PetResponse.fromPet(currentPet));            
         }
 
-        console.log(petRepositoryList)        
-
         const totalPages = Math.ceil(queryResponse.total / input.itemsPerPage);
 
         return new GetPetsUseCaseOutput({
